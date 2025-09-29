@@ -1,0 +1,2 @@
+# Informatika
+Homework for informatika
