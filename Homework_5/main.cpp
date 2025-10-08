@@ -92,17 +92,17 @@ int main() {
           std::string zone;
           
           
-          bool isAboveABS = mathY > -mathX+5;
-          bool isAboveLine = mathY > mathX-3;
+          bool line1 = mathY > -mathX+5;
+          bool line2 = mathY > mathX-3;
           
           if (mathY == -mathX+5 || mathY == mathX-3) {
               zone = "The point is on the function plot";
           }
-          else if (isAboveLine && isAboveABS) {
+          else if (line2 && line1) {
               zone = "1";
-          } else if (!isAboveLine && isAboveABS) {
+          } else if (!line2 && line1) {
               zone = "3";
-          } else if (isAboveLine && !isAboveABS && mathX < 0) {
+          } else if (line2 && !line1 && mathX < 0) {
               zone = "4";
           } else {
               zone = "2";
