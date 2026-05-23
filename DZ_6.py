@@ -35,54 +35,58 @@ VISITED = 5
 
 
 class Cell:
-    def __init__(self, row, col):
-        self.row = row
-        self.col = col
-        self.x = col * CELL_SIZE
-        self.y = row * CELL_SIZE
-        self.color = WHITE
-        self.neighbors = []
 
-    def get_pos(self):
+    
+    def __init__(self, row, col): # Конструктор клетки
+        self.row = row # Номер строки
+        self.col = col  # Номер столбца
+        self.x = col * CELL_SIZE # Координата X на экране
+        self.y = row * CELL_SIZE  # Координата Y на экране
+        self.color = WHITE # Начальный цвет клетки
+        self.neighbors = [] # Список соседних клеток
+
+    
+    def get_pos(self):  # Возвращает позицию клетки в сетке
         return self.row, self.col
 
-    def is_closed(self):
+    def is_closed(self):  # Проверка, является ли клетка закрытой
         return self.color == RED
 
-    def is_open(self):
+    def is_open(self):  # Проверка, является ли клетка открытой
         return self.color == GREEN
 
-    def is_barrier(self):
+    def is_barrier(self):  # Проверка, является ли клетка препятствием
         return self.color == BLACK
 
-    def is_start(self):
+    def is_start(self):    # Проверка стартовой клетки
         return self.color == ORANGE
 
-    def is_end(self):
+    def is_end(self):    # Проверка конечной клетки
         return self.color == TURQUOISE
-
-    def reset(self):
+    
+    def reset(self):    # Сброс клетки в обычное состояние
         self.color = WHITE
-
-    def make_start(self):
+  
+    def make_start(self):    # Сделать клетку стартовой
         self.color = ORANGE
-
-    def make_closed(self):
+  
+    def make_closed(self): # Сделать клетку закрытой
         self.color = RED
 
-    def make_open(self):
+    def make_open(self):    # Сделать клетку открытой
         self.color = GREEN
 
-    def make_barrier(self):
+    def make_barrier(self):    # Сделать клетку препятствием
         self.color = BLACK
 
-    def make_end(self):
+    def make_end(self):     # Сделать клетку конечной
         self.color = TURQUOISE
 
-    def make_path(self):
+    def make_path(self):     # Сделать клетку частью пути
         self.color = PURPLE
+   
+    def draw(self, win): # Отрисовка клетки на экране
 
-    def draw(self, win):
         pygame.draw.rect(
             win,
             self.color,
@@ -109,13 +113,15 @@ class Cell:
             self.neighbors.append(grid[self.row][self.col - 1])
 
 
+# Создание двумерной сетки из клеток
 def make_grid():
+
     grid = []
     for i in range(GRID_SIZE):
-        grid.append([])
+        grid.append([])  # Добавляем новую строку
         for j in range(GRID_SIZE):
-            cell = Cell(i, j)
-            grid[i].append(cell)
+            cell = Cell(i, j) # Создаем клетку
+            grid[i].append(cell) # Добавляем клетку в строку
     return grid
 
 
@@ -183,59 +189,59 @@ def a_star_algorithm(draw, grid, start, end):
     count = 0
 
     open_set = PriorityQueue()
-    open_set.put((0, count, start))
+    open_set.put((0, count, start)) #Задание точки старта
 
     came_from = {}
 
     g_score = {}
     f_score = {}
 
-    for row in grid:
+    for row in grid: # Для кажкой клетки изначально задается значение бесконечность
         for cell in row:
             g_score[cell] = float("inf")
             f_score[cell] = float("inf")
 
-    g_score[start] = 0
+    g_score[start] = 0     # Для стартовой клетки расстояние равно 0 
     f_score[start] = h(start.get_pos(), end.get_pos())
 
-    open_set_hash = {start}
+    open_set_hash = {start} # проверка, есть ли клетка уже в очереди
 
-    while not open_set.empty():
+    while not open_set.empty():  # код работает пока есть клетки для проверки 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
 
         current = open_set.get()[2]
-        open_set_hash.remove(current)
+        open_set_hash.remove(current) #Берётся клетка с наименьшим f_score и удаляется из множества открытых клеток
 
-        if current == end:
-            reconstruct_path(came_from, end, draw)
+        if current == end: # Если клетка найдена, то финиш
+            reconstruct_path(came_from, end, draw) # Восстанавливаем путь
             start.make_start()
             end.make_end()
             print("Путь найден")
             print("Длина пути:", g_score[end])
             return True
 
-        for neighbor in current.neighbors:
-            temp_g_score = g_score[current] + 1
+        for neighbor in current.neighbors: # Перебираются все соседние клетки текущей клетки
+            temp_g_score = g_score[current] + 1 # Считается новая длина пути до соседа
 
-            if temp_g_score < g_score[neighbor]:
+            if temp_g_score < g_score[neighbor]: # Если находится путь кратче, то заменяем на него
                 came_from[neighbor] = current
                 g_score[neighbor] = temp_g_score
-                f_score[neighbor] = temp_g_score + h(neighbor.get_pos(), end.get_pos())
+                f_score[neighbor] = temp_g_score + h(neighbor.get_pos(), end.get_pos()) # Сохраняем, откуда пришли, обновляем стоимость пути и общий приоритет
 
-                if neighbor not in open_set_hash:
+                if neighbor not in open_set_hash: # Проверяем, нет ли соседа уже в очереди.
                     count += 1
                     open_set.put((f_score[neighbor], count, neighbor))
-                    open_set_hash.add(neighbor)
+                    open_set_hash.add(neighbor)  # Добавляем соседа в очередь с приоритетом.
 
                     if neighbor != end:
-                        neighbor.make_open()
+                        neighbor.make_open() # Окрашиваем соседа как открытую клетку
 
         draw()
 
         if current != start:
-            current.make_closed()
+            current.make_closed() # После обработки клетка становится закрытой
 
     print("Путь не найден")
     return False
