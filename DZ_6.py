@@ -8,7 +8,7 @@ pygame.init()
 
 # Константы
 WIDTH = 600
-GRID_SIZE = 10
+GRID_SIZE = 30
 CELL_SIZE = WIDTH // GRID_SIZE
 WIN = pygame.display.set_mode((WIDTH, WIDTH))
 pygame.display.set_caption("A*")
